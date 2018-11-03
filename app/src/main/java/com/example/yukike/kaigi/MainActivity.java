@@ -390,6 +390,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createSpinner() {
+        // 現在日時を取得する
+
         // 月の値によって、日にちのスピナーの値を設定する
         Spinner spinner3 = (Spinner)findViewById(R.id.spinner3);
         Spinner spinner4 = (Spinner)findViewById(R.id.spinner4);
