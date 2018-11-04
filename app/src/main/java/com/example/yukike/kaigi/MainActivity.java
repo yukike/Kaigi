@@ -28,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -36,9 +37,9 @@ public class MainActivity extends AppCompatActivity {
 
     private ConstraintLayout yoyaku_layout;
     private ConstraintLayout yoyakuLogs_layout;
-    private ConstraintLayout useLogs_layout;
     private NfcAdapter mAdapter;
     private User user;
+    private int firstFlag = 0;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -49,20 +50,13 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.navigation_home:
                     yoyaku_layout.setVisibility(View.VISIBLE);
                     yoyakuLogs_layout.setVisibility(View.INVISIBLE);
-                    useLogs_layout.setVisibility(View.INVISIBLE);
                     return true;
                 case R.id.navigation_dashboard:
                     yoyaku_layout.setVisibility(View.INVISIBLE);
                     yoyakuLogs_layout.setVisibility(View.VISIBLE);
-                    useLogs_layout.setVisibility(View.INVISIBLE);
                     createReserveLogs();
                     return true;
-                //case R.id.navigation_notifications:
-                //    yoyaku_layout.setVisibility(View.INVISIBLE);
-                //    yoyakuLogs_layout.setVisibility(View.INVISIBLE);
-                //    useLogs_layout.setVisibility(View.VISIBLE);
-                //    createUseLogs();
-                //    return true;
+
             }
             return false;
         }
@@ -78,13 +72,13 @@ public class MainActivity extends AppCompatActivity {
 
         yoyaku_layout = (ConstraintLayout) findViewById(R.id.yoyaku_layout);
         yoyakuLogs_layout = (ConstraintLayout) findViewById(R.id.yoyakuLogs_layout);
-        useLogs_layout = (ConstraintLayout) findViewById(R.id.useLogs_layout);
 
         yoyaku_layout.setVisibility(View.VISIBLE);
         yoyakuLogs_layout.setVisibility(View.INVISIBLE);
-        useLogs_layout.setVisibility(View.INVISIBLE);
 
-        createSpinner();
+        defaultSpinner();
+        //createSpinner();
+        defaultSpinnerDate();
 
         // セレクトボックスを選択したら日付のセレクトボックスの値を更新する　月ボックス
         Spinner spinner3 = (Spinner)findViewById(R.id.spinner3);
@@ -92,6 +86,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 createSpinner();
+                if(firstFlag < 2) {
+                    defaultSpinnerDate();
+                    firstFlag++;
+                }
             }
 
             @Override
@@ -106,6 +104,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 createSpinner();
+                if(firstFlag < 2) {
+                    defaultSpinnerDate();
+                    firstFlag++;
+                }
             }
 
             @Override
@@ -155,8 +157,6 @@ public class MainActivity extends AppCompatActivity {
                         getResources().getString(R.string.min);
 
                 // 日付情報作成ANDROID_ID
-                //String startTimeDate = item2 + item3 + item4 + item5 + item6;
-                //String endTimeDate = item2 + item3 + item4 + item7 + item8;
                 String startTimeDate = item2 + "/" + item3 + "/" + item4 + " " + item5 + ":" + item6 + ":" + "00";
                 String endTimeDate = item2 + "/" + item3 + "/" + item4 + " " + item7 + ":" + item8 + ":" + "00";
 
@@ -262,8 +262,6 @@ public class MainActivity extends AppCompatActivity {
 
         //NFCを見つけたときに反応させる
         //PendingIntent→タイミング（イベント発生）を指定してIntentを発生させる
-        //PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
-        //        new Intent(this,getClass()), 0);
         Intent intent = new Intent(MainActivity.this , MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
@@ -322,27 +320,11 @@ public class MainActivity extends AppCompatActivity {
             //タグのIDを表示
             Log.d("excute","text = " + text.trim());
 
-            //Tag tag1 = (Tag)intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-
-            //for (String tech : tag1.getTechList()) {
-            //    Log.d("excute","tech = " + tech);
-            //    techStr1 = techStr1 + tech + "\n";
-            //}
-            //if (techStr1.equals("")) {
-            //    //techStr = "no techList.";
-            //    Log.d("excute", "no techList");
-            //    return;
-            //}
-            //TechListを表示
-            //Log.d("excute","techStr1 = " + techStr1);
-
             //UserIdをセット
             user.setUserId(text.trim());
             //NFCの読み取りを終了する
             user.setNfcflag(false);
 
-            // デバック用
-            //_id = 100;
             // ユーザID登録
             ContentValues values = new ContentValues();
             // テスト用に100をユーザIDとして入力。ほんとうはＮＦＣタグの値を入れる
@@ -389,8 +371,90 @@ public class MainActivity extends AppCompatActivity {
         return text;
     }
 
+    private void defaultSpinner() {
+        // 現在日時を取得し、スピナーの初期値とする ※日付,分以外
+        // 現在日時取得
+        Calendar calendar = Calendar.getInstance();
+        int nowYear = calendar.get(Calendar.YEAR);
+        int nowMonth = calendar.get(Calendar.MONTH);
+        int nowDate = calendar.get(Calendar.DATE);
+        int nowHour = calendar.get(Calendar.HOUR_OF_DAY);
+        int nowMin = calendar.get(Calendar.MINUTE);
+
+        Log.d("excute", "nowYear = " + nowYear);
+        Log.d("excute", "nowMonth = " + nowMonth);
+        Log.d("excute", "nowDate = " + nowDate);
+        Log.d("excute", "nowHour = " + nowHour);
+        Log.d("excute", "nowMin = " + nowMin);
+
+        // スピナーにセットする
+        // 日付（年）
+        Spinner spinner2 = (Spinner)findViewById(R.id.spinner2);
+        // 日付（月）
+        Spinner spinner3 = (Spinner)findViewById(R.id.spinner3);
+        // 日付（日）
+        //Spinner spinner4 = (Spinner)findViewById(R.id.spinner4);
+        // 開始時間（時）
+        Spinner spinner5 = (Spinner)findViewById(R.id.spinner5);
+        // 開始時間（分）
+        //Spinner spinner6 = (Spinner)findViewById(R.id.spinner6);
+        // 終了時間（時）
+        Spinner spinner7 = (Spinner)findViewById(R.id.spinner7);
+        // 終了時間（分）
+        //Spinner spinner8 = (Spinner)findViewById(R.id.spinner8);
+
+        spinner2.setSelection(nowYear - 2018);
+        spinner3.setSelection(nowMonth);
+        //spinner4.setSelection(nowDate);
+        if(nowHour < 9) {
+            // 9時前は9時にセット
+            spinner5.setSelection(0);
+            spinner7.setSelection(0);
+        } else if(nowHour > 20) {
+            // 20時以降は20時でセット
+            spinner5.setSelection(11);
+            spinner7.setSelection(11);
+        } else {
+            // 一時間先の時間をセット
+            spinner5.setSelection(nowHour - 8);
+            spinner7.setSelection(nowHour - 8);
+        }
+
+        //if(nowMin > 58) {
+        //    spinner6.setSelection(nowMin);
+        //    spinner8.setSelection(nowMin);
+        //} else {
+        //    spinner6.setSelection(nowMin + 2);
+        //    spinner8.setSelection(nowMin + 2);
+        //}
+    }
+
+    private void defaultSpinnerDate() {
+        // 現在日時を取得し、スピナーの初期値とする ※日付
+        // 現在日時取得
+        Calendar calendar = Calendar.getInstance();
+        int nowYear = calendar.get(Calendar.YEAR);
+        int nowMonth = calendar.get(Calendar.MONTH);
+        int nowDate = calendar.get(Calendar.DATE);
+        int nowHour = calendar.get(Calendar.HOUR_OF_DAY);
+        int nowMin = calendar.get(Calendar.MINUTE);
+
+        Log.d("excute", "nowYear = " + nowYear);
+        Log.d("excute", "nowMonth = " + nowMonth);
+        Log.d("excute", "nowDate = " + nowDate);
+        Log.d("excute", "nowHour = " + nowHour);
+        Log.d("excute", "nowMin = " + nowMin);
+
+        // スピナーにセットする
+        // 日付（日）
+        Spinner spinner4 = (Spinner)findViewById(R.id.spinner4);
+        spinner4.setSelection(nowDate - 1);
+
+    }
+
     private void createSpinner() {
-        // 現在日時を取得する
+
+        Log.d("excute", "createSpinner called");
 
         // 月の値によって、日にちのスピナーの値を設定する
         Spinner spinner3 = (Spinner)findViewById(R.id.spinner3);
@@ -498,57 +562,6 @@ public class MainActivity extends AppCompatActivity {
         task.setList(list);
         task.execute(builder);
 
-        //test
-        //ReserveLogs res1 = new ReserveLogs();
-        //res1.setRoomNo("会議室１");
-        //res1.setYyyymmdd("2018/10/19");
-        //res1.setStartHhmm("09:01");
-        //res1.setEndHhmm("12:30");
-        //list.add(res1);
-
-        //ReserveLogs res2 = new ReserveLogs();
-        //res2.setRoomNo("会議室２");
-        //res2.setYyyymmdd("2018/11/19");
-        //res2.setStartHhmm("09:02");
-        //res2.setEndHhmm("12:35");
-        //list.add(res2);
-
-        //reserveLogsAdapter.notifyDataSetChanged();
-    }
-
-    //使用履歴表示用
-    private void createUseLogs() {
-        ListView listView = (ListView) findViewById(R.id.listView2);
-
-        ArrayList<UseLogs> list = new ArrayList<>();
-        UseLogsAdapter useLogsAdapter = new UseLogsAdapter(this);
-
-        useLogsAdapter.setUseLogsList(list);
-        listView.setAdapter(useLogsAdapter);
-
-        //見出し
-        UseLogs res0 = new UseLogs();
-        res0.setRoomNo(getResources().getString(R.string.midashi_roomName));
-        res0.setYyyymmdd(getResources().getString(R.string.midashi_date));
-        res0.setStartHhmm(getResources().getString(R.string.midashi_startHhmm));
-        list.add(res0);
-        useLogsAdapter.notifyDataSetChanged();
-
-        // 端末に設定したuseridを使用
-        String uuid = String.valueOf(user.getUserId());
-
-        HashMap<String, Object> jsonMap = new HashMap<>();
-        jsonMap.put(getResources().getString(R.string.chaincodeId) , getResources().getString(R.string.chaincode));
-        jsonMap.put(getResources().getString(R.string.funcId) , getResources().getString(R.string.func_queryUseLogs));
-        jsonMap.put(getResources().getString(R.string.userId) , String.valueOf(uuid));
-
-        Uri.Builder builder = new Uri.Builder();
-        AsyncHttpRequest task = new AsyncHttpRequest(this);
-        task.setType(getResources().getString(R.string.functype_useLogs));
-        task.setUrl(getResources().getString(R.string.query_url));
-        task.setJSONMap(jsonMap);
-        task.setUseList(list);
-        task.execute(builder);
     }
 
     // Date型→Unixタイムスタンプ

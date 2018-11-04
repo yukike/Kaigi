@@ -156,9 +156,6 @@ public class AsyncHttpRequest extends AsyncTask<Uri.Builder, Void, String> {
         } else if(getType().equals(this.mainActivity.getResources().getString(R.string.functype_reserveLogs))) {
             // 予約履歴取得処理
             responseReserveLogs(result);
-        } else if(getType().equals(this.mainActivity.getResources().getString(R.string.functype_useLogs))) {
-            // 使用履歴取得処理
-            responseUseLogs(result);
         } else {
 
         }
@@ -318,54 +315,6 @@ public class AsyncHttpRequest extends AsyncTask<Uri.Builder, Void, String> {
             }
             reserveLogsAdapter.notifyDataSetChanged();
 
-        } catch (JSONException e) {
-            // 予期せぬエラー
-            Toast toast = Toast.makeText(this.mainActivity, this.mainActivity.getResources().
-                    getString(R.string.dialog_toast_err_nores), Toast.LENGTH_SHORT);
-            toast.show();
-            e.printStackTrace();
-        } finally {
-
-        }
-    }
-
-    // 使用履歴取得処理の応答処理
-    void responseUseLogs(String result) {
-        try {
-            ListView listView = (ListView) this.mainActivity.findViewById(R.id.listView2);
-
-            //ArrayList<ReserveLogs> list = new ArrayList<>();
-            UseLogsAdapter useLogsAdapter = new UseLogsAdapter(this.mainActivity);
-
-            useLogsAdapter.setUseLogsList(useList);
-            listView.setAdapter(useLogsAdapter);
-            //JSONObject json = new JSONObject(result);
-            //JSONArray datas = json.getJSONArray("");
-            JSONArray datas = new JSONArray(result);
-
-            ArrayList<UseLogs> list = getUseList();
-
-            for (int i = 0; i < datas.length(); i++) {
-                // JSONパース
-                JSONObject data = datas.getJSONObject(i);
-                String roomNo = data.getString("room");
-                String startTime = data.getString("start");
-                String endTime = data.getString("end");
-                // データコンバート
-                String chgRoomNo = convertRoomNo(roomNo);
-                String chgDate = convertDate(startTime);
-                String chgStartTime = convertTime(startTime);
-                Log.d("excute", "roomNo = " + chgRoomNo);
-                Log.d("excute", "chgDate = " + chgDate);
-                Log.d("excute", "chgStartTime = " + chgStartTime);
-                // listViewにセット
-                UseLogs res = new UseLogs();
-                res.setRoomNo(chgRoomNo);
-                res.setYyyymmdd(chgDate);
-                res.setStartHhmm(chgStartTime);
-                list.add(res);
-            }
-            useLogsAdapter.notifyDataSetChanged();
         } catch (JSONException e) {
             // 予期せぬエラー
             Toast toast = Toast.makeText(this.mainActivity, this.mainActivity.getResources().
